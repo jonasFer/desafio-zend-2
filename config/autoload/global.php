@@ -12,5 +12,25 @@
  */
 
 return array(
-    // ...
+    'doctrine' => array(
+        'connection' => array(
+            'orm_default' => array(
+                'driverClass' => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
+                'params' => array(
+                    /*
+                    'host'     => '186.250.92.150',
+                    'port'     => '5435',
+                    'user'     => 'testeweb',
+                    'password' => 'testeweb',
+                    'dbname'   => 'testeweb'
+                     */
+                    'host'     => '127.0.0.1',
+                    'port'     => '3306',
+                    'user'     => 'root',
+                    'password' => '',
+                    'dbname'   => 'db_teste'
+                )
+            )
+        )
+    ),
 );
