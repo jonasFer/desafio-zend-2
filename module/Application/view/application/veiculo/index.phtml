@@ -1,0 +1,64 @@
+<?php
+$this->headScript()->prependFile($this->basePath() . '/js/home.js')
+?>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-sm-10 col-md-10">
+                <p class="text-center">Veículos</p>
+            </div>
+            <div class="col-sm-2 col-md-2">
+                <a href="/veiculo/form">
+                    <button class="btn btn-primary pull-right">Cadastrar</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            <thead>
+            <th>Placa</th>
+            <th>Renavan</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Ano</th>
+            <th>Cor</th>
+            <th class="text-right">Ações</th>
+            </thead>
+            <tbody>
+            <?php
+            if (!empty($veiculos)) {
+                foreach ($veiculos as $veiculo) {
+            ?>
+                <tr>
+                    <td><?php echo $veiculo->getPlaca(); ?></td>
+                    <td><?php echo $veiculo->getRenavam(); ?></td>
+                    <td><?php echo $veiculo->getMarca(); ?></td>
+                    <td><?php echo $veiculo->getModelo(); ?></td>
+                    <td><?php echo $veiculo->getAno(); ?></td>
+                    <td><?php echo $veiculo->getCor(); ?></td>
+                    <td class="text-right">
+                        <a href="/veiculo/form/<?php echo $veiculo->getId(); ?>">
+                            <button class="btn btn-primary">
+                                Editar
+                            </button>
+                        </a>
+                        <button type="button" class="btn btn-danger btn-delete" data-url="/veiculo/delete/<?php echo $veiculo->getId(); ?>">
+                            Excluir
+                        </button>
+                    </td>
+                </tr>
+            <?php }
+            } else {
+            ?>
+            <tr class="text-center">
+                <td colspan="5">Sem Registros</td>
+            </tr>
+            <?php
+            }
+                ?>
+            </tbody>
+        </table>
+    </div>
+</div>

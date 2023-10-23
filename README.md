@@ -1,49 +1,16 @@
-ZendSkeletonApplication
+Desafio Zend2
 =======================
-
-Introduction
-------------
-This is a simple, skeleton application using the ZF2 MVC layer and module
-systems. This application is meant to be used as a starting place for those
-looking to get their feet wet with ZF2.
 
 Installation
 ------------
 
-Using Composer (recommended)
+Using Composer
 ----------------------------
-The recommended way to get a working copy of this project is to clone the repository
-and use `composer` to install dependencies using the `create-project` command:
 
-    curl -s https://getcomposer.org/installer | php --
-    php composer.phar create-project -sdev --repository-url="https://packages.zendframework.com" zendframework/skeleton-application path/to/install
-
-Alternately, clone the repository and manually invoke `composer` using the shipped
-`composer.phar`:
-
-    cd my/project/dir
-    git clone git://github.com/zendframework/ZendSkeletonApplication.git
-    cd ZendSkeletonApplication
+    git clone https://github.com/jonasFer/desafio-zend-2.git
+    cd desafio-zend-2
     php composer.phar self-update
     php composer.phar install
-
-(The `self-update` directive is to ensure you have an up-to-date `composer.phar`
-available.)
-
-Another alternative for downloading the project is to grab it via `curl`, and
-then pass it to `tar`:
-
-    cd my/project/dir
-    curl -#L https://github.com/zendframework/ZendSkeletonApplication/tarball/master | tar xz --strip-components=1
-
-You would then invoke `composer` to install dependencies per the previous
-example.
-
-Using Git submodules
---------------------
-Alternatively, you can install using native git submodules:
-
-    git clone git://github.com/zendframework/ZendSkeletonApplication.git --recursive
 
 Web Server Setup
 ----------------
@@ -59,19 +26,31 @@ interfaces.
 
 **Note: ** The built-in CLI server is *for development only*.
 
-### Apache Setup
+Database
+----------------
 
-To setup apache, setup a virtual host to point to the public/ directory of the
-project and you should be ready to go! It should look something like below:
+### Run the script
 
-    <VirtualHost *:80>
-        ServerName zf2-tutorial.localhost
-        DocumentRoot /path/to/zf2-tutorial/public
-        SetEnv APPLICATION_ENV "development"
-        <Directory /path/to/zf2-tutorial/public>
-            DirectoryIndex index.php
-            AllowOverride All
-            Order allow,deny
-            Allow from all
-        </Directory>
-    </VirtualHost>
+    DROP TABLE IF EXISTS veiculo;
+    CREATE TABLE IF NOT EXISTS veiculo (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        renavam varchar(200) NOT NULL,
+        placa varchar(200) NOT NULL,
+        modelo varchar(200) NOT NULL,
+        marca varchar(200) NOT NULL,
+        ano int(11) NOT NULL,
+        cor varchar(200) NOT NULL,
+        PRIMARY KEY (id)
+    );
+    
+    DROP TABLE IF EXISTS motorista;
+    CREATE TABLE IF NOT EXISTS motorista (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        nome varchar(200) NOT NULL,
+        rg varchar(200) NOT NULL,
+        cpf varchar(200) NOT NULL,
+        telefone varchar(200) NOT NULL,
+        id_veiculo int(11) NOT NULL,
+        PRIMARY KEY (id),
+        FOREIGN KEY (id_veiculo) REFERENCES veiculo(id)
+    );

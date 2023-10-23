@@ -1,0 +1,169 @@
+<?php
+$this->inlineScript()->prependFile($this->basePath() . '/js/form.js')
+?>
+<form class="form-horizontal" id="form-motorista" action="<?php echo $this->action; ?>" data-edit="<?php echo !empty($this->motorista) ?>" method="POST">
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="nome">Nome:</label>
+        <div class="col-sm-6">
+            <input
+                type="text"
+                class="form-control"
+                id="nome"
+                name="nome"
+                value="<?php echo $this->motorista ? $this->motorista->getNome() : null ?>"
+            >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="cpf">CPF:</label>
+        <div class="col-sm-6">
+            <input
+                type="text"
+                class="form-control cpf"
+                id="cpf"
+                name="cpf"
+                value="<?php echo $this->motorista ? $this->motorista->getCpf() : null ?>"
+            >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="rg">RG:</label>
+        <div class="col-sm-6">
+            <input
+                type="text"
+                class="form-control"
+                id="rg"
+                name="rg"
+                value="<?php echo $this->motorista ? $this->motorista->getRg() : null ?>"
+            >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="telefone">Telefone:</label>
+        <div class="col-sm-6">
+            <input
+                type="text"
+                class="form-control phone"
+                id="telefone"
+                name="telefone"
+                value="<?php echo $this->motorista ? $this->motorista->getTelefone() : null ?>"
+            >
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3" for="veiculo">Veiculo:</label>
+        <div class="col-sm-6">
+            <select class="selectpicker form-control" id="selectpicker" data-live-search="true" name="veiculo">
+                <option value="">Selecione</option>
+                <?php foreach ($this->veiculos as $veiculo) { ?>
+                    <?php
+                    $veiculoMotorista = null;
+                    if (!empty($this->motorista)) {
+                        $veiculoMotorista = $this->motorista->getVeiculo()->getId();
+                    }
+                    ?>
+                    <option value="<?php echo $veiculo->getId() ?>" <?php echo $veiculo->getId() == $veiculoMotorista ? 'selected' : '' ?>>
+                        <?php echo $veiculo->getPlaca() ?>,
+                        <?php echo $veiculo->getMarca() ?>,
+                        <?php echo $veiculo->getModelo() ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+            <button type="submit" class="btn btn-success" id="btn-salvar">Salvar</button>
+            <a href="/motorista">
+                <button type="button" class="btn btn-default">Voltar</button>
+            </a>
+        </div>
+    </div>
+</form>
+
+
+
+<script>
+$(document).ready(function(){
+    const isEdit = $("#form-motorista").attr('data-edit');
+
+    $('#form-motorista').validate({
+        rules: {
+            'nome': {
+                required: true,
+                maxlength: 200
+            },
+            'cpf': {
+                required: true,
+                cpf: true,
+            },
+            'rg': {
+                required: true,
+                maxlength: 20,
+                number: true
+            },
+            'telefone': {
+                required: true
+            },
+            'veiculo': {
+                required: true
+            }
+        }
+    });
+
+    $("#form-motorista").submit(function(e) {
+        e.preventDefault();
+        var form = $(this);
+        if (form.valid()) {
+            var actionUrl = form.attr('action');
+            $("#btn-salvar").attr('disabled', true);
+            $.ajax({
+                type: "POST",
+                url: actionUrl,
+                dataType: 'json',
+                data: form.serialize(),
+                success: function() {
+                    $("#btn-salvar").attr('disabled', false);
+                    if (isEdit) {
+                        Swal.fire({
+                            title: 'Registro salvo!',
+                            icon: 'success'
+                        }).then((result) => {
+                            window.location = '/motorista';
+                        })
+                    } else {
+                        Swal.fire({
+                            title: 'Registro salvo!',
+                            showDenyButton: true,
+                            confirmButtonText: 'Sim',
+                            denyButtonText: 'Não',
+                            text: 'Deseja cadastrar um novo motorista?',
+                            icon: 'success'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.each (function(){
+                                    this.reset();
+                                });
+                                $("#selectpicker").val('default');
+                                $("#selectpicker").selectpicker("refresh");
+                            } else if (result.isDenied) {
+                                window.location = '/motorista';
+                            }
+                        })
+                    }
+                },
+                error: function () {
+                    $("#btn-salvar").attr('disabled', false);
+                    Swal.fire({
+                        title: 'Ocorreu um erro, tente novamente em instantes!',
+                        icon: 'error'
+                    }).then((result) => {
+                        window.location = '/motorista';
+                    })
+                }
+            });
+        }
+    });
+});
+</script>
+

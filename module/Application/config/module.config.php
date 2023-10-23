@@ -2,52 +2,63 @@
 
 namespace Application;
 
+use Application\Controller\MotoristaController;
+use Application\Controller\VeiculoController;
+use Application\Domain\Service\MotoristaService;
+use Application\Domain\Service\VeiculoService;
+
 return array(
     'router' => array(
         'routes' => array(
             'home' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'type' => 'segment',
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
-                        'controller' => 'Application\Controller\Index',
+                        'controller' => 'Application\Controller\Home',
                         'action'     => 'index',
                     ),
                 ),
             ),
-            // The following is a route to simplify getting started creating
-            // new controllers and actions without needing to create a new
-            // module. Simply drop new controllers in, and you can access them
-            // using the path /application/:controller/:action
-            'application' => array(
-                'type'    => 'Literal',
+            'veiculo' => array(
+                'type' => 'segment',
                 'options' => array(
-                    'route'    => '/application',
+                    'route'    => '/veiculo[/][:action][/:id]',
+                    'constraints' => array(
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id'     => '[0-9]+',
+                    ),
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Application\Controller',
-                        'controller'    => 'Index',
-                        'action'        => 'index',
+                        'controller' => 'Application\Controller\Veiculo',
+                        'action'     => 'index',
                     ),
                 ),
-                'may_terminate' => true,
-                'child_routes' => array(
-                    'default' => array(
-                        'type'    => 'Segment',
-                        'options' => array(
-                            'route'    => '/[:controller[/:action]]',
-                            'constraints' => array(
-                                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ),
-                            'defaults' => array(
-                            ),
-                        ),
+            ),
+            'motorista' => array(
+                'type' => 'segment',
+                'options' => array(
+                    'route'    => '/motorista[/][:action][/:id]',
+                    'constraints' => array(
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id'     => '[0-9]+',
+                    ),
+                    'defaults' => array(
+                        'controller' => 'Application\Controller\Motorista',
+                        'action'     => 'index',
                     ),
                 ),
             ),
         ),
     ),
     'service_manager' => array(
+        'factories' => array(
+            'Application\Domain\Service\VeiculoServiceInterface' => function($serviceManager) {
+                return new VeiculoService($serviceManager);
+            },
+            'Application\Domain\Service\MotoristaServiceInterface' => function($serviceManager) {
+                return new MotoristaService($serviceManager);
+            }
+        ),
         'abstract_factories' => array(
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
             'Zend\Log\LoggerAbstractServiceFactory',
@@ -68,8 +79,23 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index' => 'Application\Controller\IndexController'
+            'Application\Controller\Home' => 'Application\Controller\HomeController'
         ),
+        'factories' => array(
+            'Application\Controller\Veiculo' => function($serviceManager) {
+                $locator = $serviceManager->getServiceLocator();
+                $service = $locator->get('Application\Domain\Service\VeiculoServiceInterface');
+
+                return new VeiculoController($service);
+            },
+            'Application\Controller\Motorista' => function($serviceManager) {
+                $locator = $serviceManager->getServiceLocator();
+                $service = $locator->get('Application\Domain\Service\MotoristaServiceInterface');
+                $veiculoService = $locator->get('Application\Domain\Service\VeiculoServiceInterface');
+
+                return new MotoristaController($service, $veiculoService);
+            },
+        )
     ),
     'view_manager' => array(
         'display_not_found_reason' => true,
@@ -79,7 +105,7 @@ return array(
         'exception_template'       => 'error/index',
         'template_map' => array(
             'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
-            'application/index/index' => __DIR__ . '/../view/application/index/index.phtml',
+            'application/index/index' => __DIR__ . '/../view/application/home/index.phtml',
             'error/404'               => __DIR__ . '/../view/error/404.phtml',
             'error/index'             => __DIR__ . '/../view/error/index.phtml',
         ),
@@ -87,7 +113,6 @@ return array(
             __DIR__ . '/../view',
         ),
     ),
-    // Placeholder for console routes
     'console' => array(
         'router' => array(
             'routes' => array(
@@ -96,14 +121,14 @@ return array(
     ),
     'doctrine' => array(
         'driver' => array(
-            __NAMESPACE__ . '_driver' => array(
+            'models' => array(
                 'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
                 'cache' => 'array',
-                'paths' => array(__DIR__ . '/../src/' . __NAMESPACE__ . '/Entity')
+                'paths' => array(__DIR__ . '/../src/' . __NAMESPACE__ . '/Domain/Model')
             ),
             'orm_default' => array(
                 'drivers' => array(
-                    __NAMESPACE__ . '\Entity' => __NAMESPACE__ . '_driver'
+                    'Application\Domain\Model' => 'models'
                 )
             )
         )
